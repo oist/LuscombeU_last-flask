@@ -3,6 +3,7 @@ from flask import Flask, request, make_response
 import subprocess
 import os
 import uuid
+import gzip
 
 app = Flask(__name__)
 
@@ -34,12 +35,18 @@ def upload_sequence():
         command_on_server = f"ssh user@compute-server 'command-to-run {remote_file}'"
         subprocess.run(command_on_server, shell=True)
 
-        # SCP to retrieve the result
-        result_filename = f"result_{filename}"
-        result_local_path = os.path.join('tmp', result_filename)
-        result_remote_file = f"{remote_path}{result_filename}"
-        scp_command_result = f"scp user@compute-server:{result_remote_file} {result_local_path}"
+        # SCP to retrieve the gzipped result
+        result_filename_gz = f"result_{filename}.gz"
+        result_local_path_gz = os.path.join('tmp', result_filename_gz)
+        result_remote_file_gz = f"{remote_path}{result_filename_gz}"
+        scp_command_result = f"scp user@compute-server:{result_remote_file_gz} {result_local_path_gz}"
         subprocess.run(scp_command_result, shell=True)
+
+        # Unzip the result file
+        result_local_path = os.path.join('tmp', f"result_{filename}")
+        with gzip.open(result_local_path_gz, 'rb') as f_in:
+            with open(result_local_path, 'wb') as f_out:
+                f_out.write(f_in.read())
 
         # Serve the result as plain text
         with open(result_local_path, 'r') as file:
