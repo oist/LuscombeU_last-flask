@@ -7,6 +7,14 @@ import gzip
 
 app = Flask(__name__)
 
+# Define SSH details and custom private key path
+ssh_user = 'your_user'
+ssh_server = 'your_server'
+ssh_key_path = '/path/to/your/private_key'
+
+# Ensure the ssh command includes the custom private key
+ssh_command_prefix = f"ssh -i {ssh_key_path} {ssh_user}@{ssh_server}"
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_sequence():
     if request.method == 'POST':
@@ -24,22 +32,22 @@ def upload_sequence():
         remote_file = f"{remote_path}{filename}"
 
         # Ensure the remote directory exists
-        mkdir_command = f"ssh user@compute-server 'mkdir -p {remote_path}'"
+        mkdir_command = f"{ssh_command_prefix} 'mkdir -p {remote_path}'"
         subprocess.run(mkdir_command, shell=True)
 
         # SCP to transfer the file to the compute server
-        scp_command = f"scp {local_path} user@compute-server:{remote_file}"
+        scp_command = f"scp -i {ssh_key_path} {local_path} {ssh_user}@{ssh_server}:{remote_file}"
         subprocess.run(scp_command, shell=True)
 
         # SSH to execute the command on the compute server
-        command_on_server = f"ssh user@compute-server 'command-to-run {remote_file}'"
+        command_on_server = f"{ssh_command_prefix} 'command-to-run {remote_file}'"
         subprocess.run(command_on_server, shell=True)
 
         # SCP to retrieve the gzipped result
         result_filename_gz = f"result_{filename}.gz"
         result_local_path_gz = os.path.join('tmp', result_filename_gz)
         result_remote_file_gz = f"{remote_path}{result_filename_gz}"
-        scp_command_result = f"scp user@compute-server:{result_remote_file_gz} {result_local_path_gz}"
+        scp_command_result = f"scp -i {ssh_key_path} {ssh_user}@{ssh_server}:{result_remote_file_gz} {result_local_path_gz}"
         subprocess.run(scp_command_result, shell=True)
 
         # Unzip the result file
