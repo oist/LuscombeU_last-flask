@@ -36,7 +36,7 @@ def upload_sequence():
             file.write(sequence)
 
         # Define the remote path
-        remote_path = '/path/to/destination/'
+        remote_path = '/flash/LuscombeU/charles-plessy/cache/last-flask'
         remote_file = f"{remote_path}{filename}"
 
         # Ensure the remote directory exists
@@ -48,11 +48,11 @@ def upload_sequence():
         subprocess.run(scp_command, shell=True)
 
         # SSH to execute the command on the compute server
-        command_on_server = f"{ssh_command_prefix} 'command-to-run {remote_file}'"
+        command_on_server = f"{ssh_command_prefix} '/apps/unit/BioinfoUgrp/Other/Nextflow2/23.10.1/bin/nextflow run oist/plessy_pairwiseGenomeComparison -profile oist --target /bucket/.deigo/LuscombeU/common/Oikopleura/Genomes/OKI2018_I69_1.0/zenodo_1.1 -w {remote_path}/work --query {remote_file}'"
         subprocess.run(command_on_server, shell=True)
 
         # SCP to retrieve the gzipped result
-        result_filename_gz = f"result_{filename}.gz"
+        result_filename_gz = f"results/last/query.01.m2m_aln.maf.gz"
         result_local_path_gz = os.path.join('tmp', result_filename_gz)
         result_remote_file_gz = f"{remote_path}{result_filename_gz}"
         scp_command_result = f"scp -i {ssh_key_path} {ssh_user}@{ssh_server}:{result_remote_file_gz} {result_local_path_gz}"
