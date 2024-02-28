@@ -54,6 +54,12 @@ def upload_sequence():
 
         response = make_response(result, 200)
         response.mimetype = "text/plain"
+
+        # Delete the temporary files after serving
+        os.remove(local_path)
+        os.remove(result_local_path_gz)
+        os.remove(result_local_path)
+
         return response
 
     return '''
