@@ -1,0 +1,3 @@
+ssh_user=your_user
+ssh_server=your_server
+ssh_key_path=/path/to/your/private_key

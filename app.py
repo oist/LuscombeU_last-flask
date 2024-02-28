@@ -7,12 +7,20 @@ import gzip
 
 app = Flask(__name__)
 
-# Define SSH details and custom private key path
-ssh_user = 'your_user'
-ssh_server = 'your_server'
-ssh_key_path = '/path/to/your/private_key'
+# Function to load SSH config from a file
+def load_ssh_config(config_path='config.txt'):
+    config = {}
+    with open(config_path, 'r') as file:
+        for line in file:
+            key, value = line.strip().split('=', 1)
+            config[key] = value
+    return config
 
-# Ensure the ssh command includes the custom private key
+# Load SSH details from the configuration file
+ssh_config = load_ssh_config()
+ssh_user = ssh_config['ssh_user']
+ssh_server = ssh_config['ssh_server']
+ssh_key_path = ssh_config['ssh_key_path']
 ssh_command_prefix = f"ssh -i {ssh_key_path} {ssh_user}@{ssh_server}"
 
 @app.route('/', methods=['GET', 'POST'])
