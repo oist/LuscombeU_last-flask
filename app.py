@@ -1,11 +1,15 @@
 # Thanks, ChatGPT!
 from flask import Flask, request, make_response
+import logging
 import subprocess
 import os
 import uuid
 import gzip
 
 app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Function to load SSH config from a file
 def load_ssh_config(config_path='config.txt'):
@@ -21,7 +25,7 @@ ssh_config = load_ssh_config()
 ssh_user = ssh_config['ssh_user']
 ssh_server = ssh_config['ssh_server']
 ssh_key_path = ssh_config['ssh_key_path']
-ssh_command_prefix = f"ssh -i {ssh_key_path} {ssh_user}@{ssh_server}"
+ssh_command_prefix = f"ssh -t -i {ssh_key_path} {ssh_user}@{ssh_server}"
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_sequence():
@@ -34,6 +38,7 @@ def upload_sequence():
 
         with open(local_path, 'w') as file:
             file.write(sequence)
+        logging.info('Wrote file…')
 
         # Define the remote path
         remote_path = '/flash/LuscombeU/charles-plessy/cache/last-flask'
@@ -41,15 +46,20 @@ def upload_sequence():
 
         # Ensure the remote directory exists
         mkdir_command = f"{ssh_command_prefix} 'mkdir -p {remote_path}'"
+        logging.info(f"Want to run {mkdir_command}")
         subprocess.run(mkdir_command, shell=True)
+        logging.info('Ensured destination directory is there…')
 
         # SCP to transfer the file to the compute server
         scp_command = f"scp -i {ssh_key_path} {local_path} {ssh_user}@{ssh_server}:{remote_file}"
         subprocess.run(scp_command, shell=True)
+        logging.info('Transferred file…')
 
         # SSH to execute the command on the compute server
         command_on_server = f"{ssh_command_prefix} '/apps/unit/BioinfoUgrp/Other/Nextflow2/23.10.1/bin/nextflow run oist/plessy_pairwiseGenomeComparison -profile oist --target /bucket/.deigo/LuscombeU/common/Oikopleura/Genomes/OKI2018_I69_1.0/zenodo_1.1 -w {remote_path}/work --query {remote_file}'"
+        logging.info(f"Want to run {command_on_server}")
         subprocess.run(command_on_server, shell=True)
+        logging.info('Ran Nextflow…')
 
         # SCP to retrieve the gzipped result
         result_filename_gz = f"results/last/query.01.m2m_aln.maf.gz"
@@ -57,6 +67,7 @@ def upload_sequence():
         result_remote_file_gz = f"{remote_path}{result_filename_gz}"
         scp_command_result = f"scp -i {ssh_key_path} {ssh_user}@{ssh_server}:{result_remote_file_gz} {result_local_path_gz}"
         subprocess.run(scp_command_result, shell=True)
+        logging.info('Got the results back…')
 
         # Unzip the result file
         result_local_path = os.path.join('tmp', f"result_{filename}")
