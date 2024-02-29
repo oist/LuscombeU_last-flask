@@ -1,6 +1,6 @@
 #!/bin/bash
 # Made with ChatGPT
-ALLOWED_DIR="/path/to/restricted/directory"
+ALLOWED_DIR="/flash/LuscombeU/"$(whoami)"/cache/last-flask"
 if [[ "$SSH_ORIGINAL_COMMAND" =~ ^scp\ -[ftr]\ .*$ ]]; then
     if [[ "$SSH_ORIGINAL_COMMAND" =~ .*$ALLOWED_DIR.* ]]; then
         $SSH_ORIGINAL_COMMAND
