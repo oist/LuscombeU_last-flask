@@ -34,7 +34,7 @@ def upload_sequence():
 
         # Generate a unique filename to avoid conflicts
         filename = f"{uuid.uuid4()}.txt"
-        local_path = os.path.join('tmp', filename)
+        local_path = os.path.join('/tmp', filename)
 
         with open(local_path, 'w') as file:
             file.write(sequence)
@@ -63,14 +63,14 @@ def upload_sequence():
 
         # SCP to retrieve the gzipped result
         result_filename_gz = f"results/last/query.01.m2m_aln.maf.gz"
-        result_local_path_gz = os.path.join('tmp', result_filename_gz)
+        result_local_path_gz = os.path.join('/tmp', result_filename_gz)
         result_remote_file_gz = f"{remote_path}{result_filename_gz}"
         scp_command_result = f"scp -i {ssh_key_path} {ssh_user}@{ssh_server}:{result_remote_file_gz} {result_local_path_gz}"
         subprocess.run(scp_command_result, shell=True)
         logging.info('Got the results back…')
 
         # Unzip the result file
-        result_local_path = os.path.join('tmp', f"result_{filename}")
+        result_local_path = os.path.join('/tmp', f"result_{filename}")
         with gzip.open(result_local_path_gz, 'rb') as f_in:
             with open(result_local_path, 'wb') as f_out:
                 f_out.write(f_in.read())
