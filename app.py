@@ -24,8 +24,9 @@ def load_ssh_config(config_path='config.txt'):
 ssh_config = load_ssh_config()
 ssh_user = ssh_config['ssh_user']
 ssh_server = ssh_config['ssh_server']
+ssh_proxy_command = ssh_config['ssh_proxy_command']
 ssh_key_path = ssh_config['ssh_key_path']
-ssh_command_prefix = f"ssh -t -i {ssh_key_path} {ssh_user}@{ssh_server}"
+ssh_command_prefix = f"ssh -t -i {ssh_key_path} {ssh_proxy_command} {ssh_user}@{ssh_server}"
 nextflow_command = "PATH=$PATH:/apps/free81/singularity/3.5.2/bin JAVA_HOME=/apps/free81/java-jdk/14 /apps/unit/BioinfoUgrp/Other/Nextflow2/23.10.1/bin/nextflow"
 nextflow_pipeline = "oist/plessy_pairwiseGenomeComparison -r o2m"
 nextflow_profile = "-profile oist"
