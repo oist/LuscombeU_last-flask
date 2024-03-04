@@ -27,6 +27,7 @@ ssh_server = ssh_config['ssh_server']
 ssh_proxy_command = ssh_config['ssh_proxy_command']
 ssh_key_path = ssh_config['ssh_key_path']
 ssh_command_prefix = f"ssh -t -i {ssh_key_path} {ssh_proxy_command} {ssh_user}@{ssh_server}"
+scp_command_prefix = f"scp -i {ssh_key_path} {ssh_proxy_command}"
 nextflow_command = "PATH=$PATH:/apps/free81/singularity/3.5.2/bin JAVA_HOME=/apps/free81/java-jdk/14 /apps/unit/BioinfoUgrp/Other/Nextflow2/23.10.1/bin/nextflow"
 nextflow_pipeline = "oist/plessy_pairwiseGenomeComparison -r o2m"
 nextflow_profile = "-profile oist"
@@ -55,7 +56,7 @@ def upload_sequence():
         subprocess.run(mkdir_command, shell=True)
 
         # SCP to transfer the file to the compute server
-        scp_command = f"scp -i {ssh_key_path} {local_path} {ssh_user}@{ssh_server}:{remote_file}"
+        scp_command = f"{scp_command_prefix} {local_path} {ssh_user}@{ssh_server}:{remote_file}"
         subprocess.run(scp_command, shell=True)
 
         # SSH to execute the command on the compute server
@@ -67,7 +68,7 @@ def upload_sequence():
         result_filename_gz = f"query.01.m2m_aln.maf.gz"
         result_local_path_gz = os.path.join('/tmp', result_filename_gz)
         result_remote_file_gz = f"{remote_outdir}/last/{result_filename_gz}"
-        scp_command_result = f"scp -i {ssh_key_path} {ssh_user}@{ssh_server}:{result_remote_file_gz} {result_local_path_gz}"
+        scp_command_result = f"{scp_command_prefix} {ssh_user}@{ssh_server}:{result_remote_file_gz} {result_local_path_gz}"
         subprocess.run(scp_command_result, shell=True)
         logging.info('Got the results back…')
 
