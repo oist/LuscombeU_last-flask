@@ -1,4 +1,4 @@
 ssh_user=your_user
 ssh_server=your_server
-ssh_proxy_command='-J username@proxy.example.com'
+ssh_proxy_command=-o ProxyCommand="ssh -i /path/to/your/private_key -W %h:%p username@proxy.example.com
 ssh_key_path=/path/to/your/private_key
