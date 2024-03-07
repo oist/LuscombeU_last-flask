@@ -94,12 +94,20 @@ def upload_sequence():
 
     return '''
     <!doctype html>
-    <title>Upload Sequence</title>
-    <h1>Upload a sequence in FASTA format (do not forget the header).</h1>
-    <form method=post>
-      <textarea name=sequence></textarea>
-      <input type=submit value=Upload>
-    </form>
+    <html>
+    <head>
+        <title>Upload Sequence</title>
+    </head>
+    <body>
+        <h1>Upload a sequence in FASTA format (do not forget the header).</h1>
+        <form method="post">
+          <textarea name="sequence"></textarea>
+          <input type="submit" value="Upload">
+          <!-- Add a reset button that resets all form fields to their default values -->
+          <input type="reset" value="Clear">
+        </form>
+    </body>
+    </html>
     '''
 
 if __name__ == '__main__':
