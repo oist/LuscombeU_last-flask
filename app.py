@@ -101,7 +101,7 @@ def upload_sequence():
     <body>
         <h1>Upload a sequence in FASTA format (do not forget the header).</h1>
         <form method="post">
-          <textarea name="sequence" cols="80" rows="100"></textarea>
+          <textarea name="sequence" cols="80" rows="50"></textarea>
           <input type="submit" value="Upload">
           <!-- Add a reset button that resets all form fields to their default values -->
           <input type="reset" value="Clear">
